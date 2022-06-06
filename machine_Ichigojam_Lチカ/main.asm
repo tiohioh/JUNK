@@ -1,1 +1,15 @@
-ADD R3 R2
+MOV R3 0x50
+SLA R3 8
+ADD R3 1
+SLA R3 16
+ADD R3 0b01101100
+
+
+@Loop
+@Pause
+
+
+JPL @Pause
+JUMP @Loop
+
+RET
