@@ -1,0 +1,4 @@
+10 LET A
+15 A = INKEY()
+20 PRINT A;""
+30 GOTO 15
