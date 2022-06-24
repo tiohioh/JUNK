@@ -1,2 +1,1 @@
-10 ?"Hello World"
-20 PRINT "Hello World"
+10 ? "Hello World"
