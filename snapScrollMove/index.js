@@ -1,8 +1,8 @@
 class snapScrollMove{
 	constructor(dom) {
 		this.parent = dom;
-		this.length = (this.parent.scrollWidth / this.parent.clientWidth) | 0;
-		this.index = (this.parent.scrollLeft / this.parent.clientWidth) | 0;
+		this.length = Math.round(this.parent.scrollWidth / this.parent.clientWidth);
+		this.index = Math.round(this.parent.scrollLeft / this.parent.clientWidth);
 	}
 	moveTo(index){
 		index = index % this.length;
@@ -10,7 +10,7 @@ class snapScrollMove{
 		this.index = index;
 	}
 	getIndex(){
-		this.index = (this.parent.scrollLeft / this.parent.clientWidth) | 0;
+		this.index = Math.round(this.parent.scrollLeft / this.parent.clientWidth);
 		return this.index;
 	}
 }
