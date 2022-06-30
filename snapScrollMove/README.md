@@ -37,7 +37,7 @@ scroll-behavior: smooth;
 
 
 # 例
-./example.jsを参照のこと
+./example/ 内を参照のこと
 ```javascript:example.js
 //5秒ごとに1つ右のSnapにシフトし最終のSnapのあとに0番に戻る
 var ssm = new snapScrollMove(document.querySelector("hoge"));
