@@ -18,7 +18,7 @@ SnapScrollを指定したindexまで動かします。指定したindexが範囲
 ### argment
 Number (Index)
 ### return
-移動後のindex(indexが存在する範囲のときはそのまま)を返却します。
+移動後のindex(indexが存在する範囲のときは引数と等価)を返却します。
 
 ## getIndex
 現在のindexを更新しindexを返却します。
