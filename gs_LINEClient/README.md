@@ -1,0 +1,4 @@
+# gs_LINEClient
+GAS上でLINEのMessagingAPIを簡単に利用できるようにしたライブラリです。
+
+本ライブラリは完成し次第リポジトリを独立させる予定です。
