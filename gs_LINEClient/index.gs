@@ -11,28 +11,52 @@ class LINEClient {
   }
 
 
-  replyMessages() {
+  /*replyMessages() {
     return new MessageObject(MessageObject.TYPE_REPLY);
   }
   sendMessages() {
     return new MessageObject()
-  }
+  }*/
 
   static func() {
     return true;
   }
 
-  static get MessageObject(){
-    return MessageObject;
+  createMessageObject(type){
+    return new MessageObject({...this,"sendType" : type});
   }
 }
 
 class MessageObject {
-  static get TYPE_SEND() {
-    return 0;
+  constructor(e){
+    //sHed <= 送信時のヘッダ
+    //sObj <= 送信時のボディー
+
+    this.sHed = new Object();
+    this.sHed["Authorization"] = e._TOKEN;
+    this.sObj = new Object();
+    this.sObj.messages = new Array();
+    this.sendType = e.sendType;
+    this._useXLineRetryKey = true;
+    this._XLineRetryKey = MessageObject.createUUID();
   }
+
+  static createUUID(){
+    let ids = (new Date()).getTime().toString(16).toLowerCase();
+    let _UUID = ids.substring(0,8) + '-';
+    _UUID += ids.substring (2,6) +  '-';
+    _UUID += ids.substring(4,8) + '-';
+    _UUID += ids.substring(6,10) + '-';
+    _UUID += ids.substring(ids.length - 7,ids.length - 1);
+    _UUID += ids.substring(ids.length - 7,ids.length - 1);
+    return _UUID;
+  }
+
   static get TYPE_REPLY() {
-    return 1;
+    return 10;
+  }
+  static get TYPE_PUSH() {
+    return 11;
   }
 
   static get STATES_CODE() {
@@ -50,34 +74,89 @@ class MessageObject {
     }
   }
 
-  constructor() {
-    this.elements = new Array();
+  set useXLineRetryKey(bool) {
+    return this._useXLineRetryKey = bool;
+  }
+  get useXLineRetryKey() {
+    return this._useXLineRetryKey;
   }
 
-  appendNode(elem) {
-    this.elements.push(elem);
+  pushNode(elem) {
+    this.sObj.messages.push(elem);
   }
 
-  reply() {}
+  getNodes() {
+    return this.sObj.messages;
+  }
+  getLastNode() {
+    if(this.sObj.messages.length == 0)
+      return undefined;
+    return this.sObj.messages[this.sObj.messages.length - 1];
+  }
+
+  setReplyToken(key) {
+    if(this.sendType == 10){
+      this.sHed.replyToken = key;
+    }else{
+      throw new Error("宣言した送信形式と使用するメソッドが違います。本メソッドを使用するにはTYPE_REPLYで宣言する必要があります。");
+    }
+  }
+  reply() {
+
+  }
+
+  setPushUser(e){
+    if(e.constructor.name == "String" || e.constructor.name == "Array"){
+      if(this.sendType == 11){
+        this.sObj.to = e;
+      }else{
+        throw new Error("宣言した送信形式と使用するメソッドが異なります。このメソッドを利用するにはTYPE_PUSHで宣言する必要があります。")
+      }
+    }else{
+      throw new Error("引数が不適切です。引数にはユーザー文字列かユーザー文字列の配列を入れる必要があります。")
+    }
+  }
+  /*setPushUsers(){
+
+  }*/
   push() {
-    return this._sendData();
+    if(!this.sObj.to)
+      throw new Error("有効なユーザーIDが設定されていません。");
+    if(this.sObj.messages.length > 5)
+      throw new Error("設定したメッセージが多すぎます。一度に送信可能なメッセージ数は1から5件です。")
+    if(this.sObj.messages.length == 0)
+      throw new Error("送信するメッセージが設定されていません。一度に送信可能なメッセージ数は1から5件です。")
+    if(this._useXLineRetryKey)
+      this.sHed["X-Line-Retry-Key"] = this._XLineRetryKey;
+    return this._sendPostData("https://api.line.me/v2/bot/message/push", this.sHed, this.sObj);
   }
 
-  static _sendData(url, opt) {
+  _sendPostData(url, head, body) {
+    let opt = {
+      "method": "POST",
+      "muteHttpExceptions": true,
+      "headers": {
+        "Content-Type": "application/json",
+        ...head
+      },
+      "payload": JSON.stringify(body)
+    };
+
     let response = UrlFetchApp.fetch(url, opt);
-    let responseCode = response.getResponseCode;
-    let responseText = JSON.parse(response.getContentText);
+    let responseCode = response.getResponseCode();
+    let responsePlaneText = response.getContentText();
+    let responseText = JSON.parse(responsePlaneText);
 
     if(responseCode == 200){
       return true;
     }else{
-      const errorMessage = "";//******************************* */
-      throw new Error()
+      const errorMessage = responseCode + responsePlaneText;
+      console.warn(errorMessage);
+      //throw new Error(errorMessage);
+      return false;
     }
   }
 }
-
-
 
 
 class MessageNode {
@@ -88,6 +167,24 @@ class MessageNode {
 
   get MESSAGE_TYPE() {
     return this.element.type;
+  }
+
+  getNode(){
+    return this.element;
+  }
+
+  static get MESSAGE_TYPE_CUSTOM() {
+    return {};
+  }
+  setParam(p1, p2) {
+    if(p1.constructor.name == "Object"){
+      for(a2r of Object.entries(p1)){
+        this.element[a2r[0]] = a2r[1];
+      }
+    }else{
+      this.element[p1] = p2 +"";
+    }
+    return this
   }
 
   static get MESSAGE_TYPE_TEXT() {
@@ -152,7 +249,7 @@ class MessageNode {
   }
   setThumbnailUrl(url) {
     if(this.MESSAGE_TYPE = "video")
-      this.element.previewImageUrl;
+      this.element.previewImageUrl = url;
     return this;
   }
   setTrackingId(trackingId) {
@@ -281,15 +378,4 @@ class MessageNode {
   }
 
   //それ以下のAPIについては複雑なため省略
-}
-
-function myFunction() {
-
-let lcm = new LINEClient.MessageObject();
-
-
-  let ss = new MessageNode(MessageNode.MESSAGE_TYPE_LOCATION);
-  ss.locationAutoInserter =false;
-  ss.setLocationLatLon([45,130]).setLocationAddress("-");
-  console.log(ss)
 }
