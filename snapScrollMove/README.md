@@ -14,7 +14,7 @@ CSSのSnap-scroll-typeによって実装された横方向の連結要素のス�
 DOM 親要素のDOM
 
 ## moveTo
-SnapScrollを指定したindexまで動かします。指定したindexが範囲外のときは5で割ったあまりを返却します。引数が負数のときの挙動は未定義です。
+SnapScrollを指定したindexまで動かします。指定したindexが範囲外のときは要素数で割ったあまりを返却します。引数が負数のときの挙動は未定義です。
 ### argment
 Number (Index)
 ### return
